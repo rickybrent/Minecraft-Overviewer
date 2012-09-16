@@ -772,7 +772,8 @@ def wooden_planks(self, blockid, data):
     if data == 3: # jungle wood
         return self.build_block(self.terrain_images[199],self.terrain_images[199])
 
-@material(blockid=6, data=range(16), transparent=True)
+# added IC2 rubber sapling
+@material(blockid=[6,242], data=range(16), transparent=True)
 def saplings(self, blockid, data):
     # usual saplings
     tex = self.terrain_images[15]
@@ -788,19 +789,29 @@ def saplings(self, blockid, data):
 # bedrock
 block(blockid=7, top_index=17)
 
-@material(blockid=8, data=range(16), fluid=True, transparent=True, nospawn=True)
+# Added BC moving Oil
+@material(blockid=[8,162], data=range(16), fluid=True, transparent=True, nospawn=True)
 def water(self, blockid, data):
-    watertex = self.load_water()
+    if blockid == 8: 		# regular moving water
+        watertex = self.load_water()
+    elif blockid == 162:	# BC moving Oil
+		watertex = Image.new("RGBA", (16,16), (0,0,0,255))
     return self.build_block(watertex, watertex)
 
-# other water, glass, and ice (no inner surfaces)
+# other water, glass, and ice (no inner surfaces), added IC2 reinforced glass, added BC still Oil and tanks
 # uses pseudo-ancildata found in iterate.c
-@material(blockid=[9, 20, 79], data=range(32), fluid=(9,), transparent=True, nospawn=True, solid=(79, 20))
+@material(blockid=[9, 20, 79, 163, 165, 230], data=range(32), fluid=(9,), transparent=True, nospawn=True, solid=(79, 20))
 def no_inner_surfaces(self, blockid, data):
     if blockid == 9:
         texture = self.load_water()
     elif blockid == 20:
         texture = self.terrain_images[49]
+    elif blockid == 163: # BC still Oil here
+		texture = Image.new("RGBA", (16,16), (0,0,0,255))
+    elif blockid == 165: # BC tanks here
+		texture = self.terrain_images[49]
+    elif blockid == 230: # IC2 Alloy Glass here
+		texture = self.terrain_images[49]
     else:
         texture = self.terrain_images[67]
         
@@ -883,7 +894,8 @@ def wood(self, blockid, data):
     elif wood_orientation == 8: # north-south orientation
         return self.build_full_block(side, None, None, side.rotate(270), top)
 
-@material(blockid=18, data=range(16), transparent=True, solid=True)
+# added IC2 rubber leaves
+@material(blockid=[18,242], data=range(16), transparent=True, solid=True)
 def leaves(self, blockid, data):
     # mask out the bits 4 and 8
     # they are used for player placed and check-for-decay blocks
@@ -1420,8 +1432,8 @@ block(blockid=48, top_index=36)
 # obsidian
 block(blockid=49, top_index=37)
 
-# torch, redstone torch (off), redstone torch(on)
-@material(blockid=[50, 75, 76], data=[1, 2, 3, 4, 5], transparent=True)
+# torch, redstone torch (off), redstone torch(on), interdiction torch
+@material(blockid=[50, 75, 76, 129], data=[1, 2, 3, 4, 5], transparent=True)
 def torches(self, blockid, data):
     # first, rotations
     if self.rotation == 1:
@@ -1445,6 +1457,10 @@ def torches(self, blockid, data):
         small = self.terrain_images[80]
     elif blockid == 75: # off redstone torch
         small = self.terrain_images[115]
+    elif blockid == 129: # interdiction torch
+        small = self.terrain_images[99]
+        # if this works... we can tint the other textures too.
+        small = self.tint_texture(small, (170,255,255))
     else: # on redstone torch
         small = self.terrain_images[99]
         
@@ -1921,9 +1937,9 @@ block(blockid=56, top_index=50)
 # diamond block
 block(blockid=57, top_index=24)
 
-# crafting table
+# crafting table, added BC auto workbench
 # needs two different sides
-@material(blockid=58, solid=True, nodata=True)
+@material(blockid=[58,152], solid=True, nodata=True)
 def crafting_table(self, blockid, data):
     top = self.terrain_images[43]
     side3 = self.terrain_images[43+16]
@@ -1932,8 +1948,8 @@ def crafting_table(self, blockid, data):
     img = self.build_full_block(top, None, None, side3, side4, None)
     return img
 
-# crops
-@material(blockid=59, data=range(8), transparent=True, nospawn=True)
+# crops, added IC2 crops
+@material(blockid=[59,218], data=range(8), transparent=True, nospawn=True)
 def crops(self, blockid, data):
     raw_crop = self.terrain_images[88+data]
     crop1 = self.transform_image_top(raw_crop)
@@ -2007,9 +2023,9 @@ def signpost(self, blockid, data):
     return img
 
 
-# wooden and iron door
+# wooden and iron door, added IC2 door
 # uses pseudo-ancildata found in iterate.c
-@material(blockid=[64,71], data=range(32), transparent=True)
+@material(blockid=[64,71,228], data=range(32), transparent=True)
 def door(self, blockid, data):
     #Masked to not clobber block top/bottom & swung info
     if self.rotation == 1:
@@ -2542,9 +2558,9 @@ def sugar_cane(self, blockid, data):
 def jukebox(self, blockid, data):
     return self.build_block(self.terrain_images[75], self.terrain_images[74])
 
-# nether and normal fences
+# nether and normal fences, added IC2 fence
 # uses pseudo-ancildata found in iterate.c
-@material(blockid=[85, 113], data=range(16), transparent=True, nospawn=True)
+@material(blockid=[85, 113,232], data=range(16), transparent=True, nospawn=True)
 def fence(self, blockid, data):
     # no need for rotations, it uses pseudo data.
     # create needed images for Big stick fence
@@ -3497,11 +3513,16 @@ def wooden_slabs(self, blockid, data):
     
     return img
 
-# emerald ore
-block(blockid=129, top_index=171)
+# emerald ore 140:1
+# 0:ruby 1:emerald 2:sapphire 3:silver 4:tin 5:copper 6:tungsten 7:nikolite 
+block(blockid=140, top_index=171)
 
-# emerald block
-block(blockid=133, top_index=25)
+# emerald block 145:1
+block(blockid=145, top_index=25)
+# ruby block 145:0
+
+#uranium:
+block(blockid=247, top_index=171)
 
 # cocoa plant
 @material(blockid=127, data=range(12), transparent=True)
@@ -3583,3 +3604,205 @@ def cocoa_plant(self, blockid, data):
             img = img.transpose(Image.FLIP_LEFT_RIGHT)
 
     return img
+    
+    
+    
+
+# IC2 BLOCKS START HERE
+# Iron Block texture (22) for everything by default, for now
+
+# blockAlloy=231
+block(blockid=231, top_index=22)
+
+# blockAlloyGlass=230
+# Handled further up like regular glass, under no_inner_surfaces
+
+# blockBarrel=217, Looks like regular wood
+block(blockid=217, top_index=20)
+
+# blockCable=228
+block(blockid=228, top_index=22)
+
+# blockCrop=218, should handle like regular crops if everything goes well
+# block(blockid=218, top_index=22) <- use this instead if the stuff further up fails
+
+# blockDoorAlloy=229, handle like regular doors further up
+# block(blockid=229, top_index=22)
+
+# blockDynamite=236, looks like TNT
+block(blockid=236, top_index=9, side_index=8, nospawn=True)
+
+# blockDynamiteRemote=235, looks like TNT sides
+block(blockid=235, top_index=10, nospawn=True)
+
+# blockElectric=227
+block(blockid=227, top_index=22)
+
+# blockFenceIron=232, handl this like regular fences, further up
+# block(blockid=232, top_index=22)
+
+# blockFoam=222, looks like white wool
+block(blockid=222, top_index=64)
+
+# blockGenerator=246
+block(blockid=246, top_index=22)
+
+# blockHarz=240, looks like regular wood
+block(blockid=240, top_index=20)
+
+# blockITNT=239, looks like TNT
+block(blockid=239, top_index=9, side_index=8, nospawn=True)
+
+# blockIronScaffold=216
+block(blockid=216, top_index=22)
+
+# blockLuminator=226, looks like redstone lamp
+block(blockid=226, top_index=211)
+
+# blockLuminatorDark=219, looks like redstone lamp, off
+block(blockid=219, top_index=212)
+
+# blockMachine=250
+block(blockid=250, top_index=22)
+
+# blockMachine2=223
+block(blockid=223, top_index=22)
+
+# blockMetal=224
+block(blockid=224, top_index=22)
+
+# blockMiningPipe=245
+block(blockid=245, top_index=22)
+
+# blockMiningTip=244
+block(blockid=244, top_index=22)
+
+# blockNuke=237, looks like bedrock, for that extra warning sign
+block(blockid=237, top_index=17)
+
+# blockOreCopper=249
+block(blockid=249, top_index=22)
+
+# blockOreTin=248
+block(blockid=248, top_index=22)
+
+# blockOreUran=247
+block(blockid=247, top_index=22)
+
+# blockPersonal=225
+block(blockid=225, top_index=22)
+
+# blockReactorChamber=233
+block(blockid=233, top_index=22)
+
+# blockRubLeaves=242, handled further up as leaves
+# block(blockid=242, top_index=22)
+
+# blockRubSapling=241, handled further up as saplings
+# block(blockid=241, top_index=22)
+
+# blockRubWood=243, looks like jungle wood
+block(blockid=243, top_index=153)
+
+# blockRubber=234, looks like black wool
+block(blockid=234, top_index=113)
+
+# blockScaffold=220, looks like regular wooden planks
+block(blockid=220, top_index=4)
+
+# blockWall=221, looks like white wool. Thinking of handling this like wool, but can't find the data values for IC2
+block(blockid=221, top_index=64)
+
+
+# BUILDCRAFT BLOCKS START HERE
+# Iron Block texture (22) for everything by default, for now
+
+# autoWorkbench.id=152, looks like crafting table
+
+# builder.id=157
+block(blockid=157, top_index=22)
+
+# cobblestonePipe.id=159, looks like cobblestone. I'm gonna handle all pipes as if they're blocks made out of their base material
+block(blockid=233, top_index=1)
+
+# diamondPipe.id=149
+block(blockid=233, top_index=25)
+
+# dockingStation.id=168
+block(blockid=233, top_index=22)
+
+# drill.id=151
+block(blockid=233, top_index=22)
+
+# engine.id=161
+block(blockid=233, top_index=22)
+
+# filler.id=155
+block(blockid=233, top_index=22)
+
+# frame.id=160
+block(blockid=233, top_index=22)
+
+# goldenPipe.id=148
+block(blockid=233, top_index=23)
+
+# ironPipe.id=147
+block(blockid=233, top_index=22)
+
+# marker.id=154
+block(blockid=233, top_index=22)
+
+# miningWell.id=150
+block(blockid=233, top_index=22)
+
+# obsidianPipe.id=156
+block(blockid=233, top_index=37)
+
+# oilMoving.id=162, handled further up like colored moving water
+
+# oilStill.id=163, handled further up like colored still water
+
+# pipe.id=166
+block(blockid=233, top_index=22)
+
+# pump.id=164
+block(blockid=233, top_index=22)
+
+# quarry.id=153
+block(blockid=233, top_index=22)
+
+# refinery.id=167
+block(blockid=233, top_index=22)
+
+# stonePipe.id=146
+block(blockid=233, top_index=0)
+
+# tank.id=165, handled further up like glass
+
+# template.id=158
+block(blockid=233, top_index=22)
+
+# woodenPipe.id=145
+block(blockid=233, top_index=4)
+
+# Custom more blocks...
+# marble as... whatever 213 is... wait, 142 is all of this stuff?
+# 1 basalt, 3 basaltcobble, 4 basaltbrick, 0 marble, 2 marble brick
+@material(blockid=142, data=range(5), solid=True)
+def marble_basalt(self, blockid, data):
+    if data == 0: # marble
+        t = self.terrain_images[175] #end something
+    elif data == 1: # basalt
+        t = self.terrain_images[224] #nether brick
+    elif data == 2: # marble brick
+        t = self.terrain_images[175] #end something
+    elif data == 3: # basaltcobble
+        t = self.terrain_images[224] #nether brick
+    elif data == 4: # basaltbrick
+        t = self.terrain_images[224] #nether brick
+
+    img = self.build_full_block(t, None, None, t, t)
+
+    return img
+
+
